@@ -13,14 +13,10 @@ class Bot(commands.Bot):
                                   intents=intents)
         with open("settings.json", "r") as f:
             self.configFile = json.load(f)
+        self.add_cog(Event(self))
 
     async def on_ready(self):
         # TODO Nettoyer...
-        event = Event(self)
-        self.add_cog(event)
-        event.updateEDT.start()
-        event.sendEDT.start()
-        event.updateClock.start()
         print("I'm ready !")
 
 

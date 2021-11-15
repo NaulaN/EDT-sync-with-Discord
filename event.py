@@ -11,31 +11,46 @@ class Event(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.scraping = Scraping(bot.configFile["USERNAME"], bot.configFile["PASSWORD"])
-        self.time = .0
+        self.hour = 0
+        self.minute = 0
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.updateClock.start()
+        self.sendEDT.start()
 
     @loop(seconds=30)
     async def updateClock(self):
-        self.time = float(f"{datetime.datetime.now().hour}.{datetime.datetime.now().minute}")
+        self.hour = int(datetime.datetime.now().hour)
+        self.minute = int(datetime.datetime.now().minute)
 
-    @loop(hours=24)
-    async def updateEDT(self):
-        self.scraping.getEDT()
+        if self.hour == 0 and self.minute == 0:
+            self.scraping.getEDT()
 
-    @loop(minutes=1)
+    @loop(seconds=30)
     async def sendEDT(self):
         channel = utils.get(self.bot.guilds[0].channels, id=909506071905857597)
-        try:
-            self.scraping.edt[self.time-.30]
-        except KeyError:
-            pass
-        else:
-            # TODO Faire les titres pour chaque jours de la semaine
-            days = {0: "Lundi",1: "Mardi",2: "Mercredi"}
-            embed = Embed(title=days[0])
-            # TODO Mettre au propre les messages dans le Embed
-            embed.add_field(name="Heure:",value=f"{self.time}h")
-            embed.add_field(name="Prof:",value=self.scraping.edt[self.time - .30][0])
-            embed.add_field(name="Cours:",value=self.scraping.edt[self.time - .30][1])
-            embed.add_field(name="Salle:",value=self.scraping.edt[self.time - .30][2])
-            await channel.send(embed=embed)
+        hour = self.hour
+        minute = self.minute+30
 
+        if minute >= 60:
+            hour += 1
+            minute -= 60
+        time = float(f"{hour}.{minute}")
+        print(time)
+
+        try:
+            self.scraping.edt[time]
+        except KeyError: pass
+        else:
+            days = {0: "Lundi",1: "Mardi",2: "Mercredi",3: "Jeudi",4: "Vendredi"}
+            dayWeek = self.scraping.getWhatDayWeek()
+            embed = Embed(title=f"📅 {days[dayWeek if dayWeek not in [5,6] else 0]}",
+                          description=f"📆 On est le {datetime.date.today().day}/{datetime.date.today().month}/{datetime.date.today().year}\n🕔 Il est {int(time)}h{int(time-int(time))}")
+            # TODO Mettre les noms des enseignant(e)s au complet au lieux des aliases
+            embed.add_field(name="⌚ Heure:",
+                            value=f"{time}h", inline=True)
+            for n, subtitle in enumerate(["👨‍🏫👩‍🏫 Prof: ", "📖 Cours: ", "🚪 Salle: "]):
+                embed.add_field(name=subtitle,
+                                value=self.scraping.edt[time][n], inline=False)
+            await channel.send(embed=embed)
