@@ -21,17 +21,21 @@ class Event(commands.Cog):
     async def updateEDT(self):
         self.scraping.getEDT()
 
-    @loop(minutes=5)
+    @loop(minutes=1)
     async def sendEDT(self):
         channel = utils.get(self.bot.guilds[0].channels, id=909506071905857597)
         try:
+            self.scraping.edt[self.time-.30]
+        except KeyError:
+            pass
+        else:
             # TODO Faire les titres pour chaque jours de la semaine
-            days = {0: "Lundi", 1: "Mardi", 2: "Mercredi"}
+            days = {0: "Lundi",1: "Mardi",2: "Mercredi"}
             embed = Embed(title=days[0])
             # TODO Mettre au propre les messages dans le Embed
-            embed.add_field(name="Heure:", value=f"{self.time}h")
-            embed.add_field(name="Prof:", value=self.scraping.edt[self.time-.30][0])
-            embed.add_field(name="Cours:", value=self.scraping.edt[self.time-.30][1])
-            embed.add_field(name="Salle:", value=self.scraping.edt[self.time-.30][2])
+            embed.add_field(name="Heure:",value=f"{self.time}h")
+            embed.add_field(name="Prof:",value=self.scraping.edt[self.time - .30][0])
+            embed.add_field(name="Cours:",value=self.scraping.edt[self.time - .30][1])
+            embed.add_field(name="Salle:",value=self.scraping.edt[self.time - .30][2])
             await channel.send(embed=embed)
-        except KeyError: pass
+

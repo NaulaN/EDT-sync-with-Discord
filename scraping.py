@@ -35,26 +35,28 @@ class Scraping(object):
         # TODO Corrigé les elements qui manque present sur l'emploie du temps (Nom de div bizarre)
         # Click sur l'emploie du temps qui correspond au jour de la semaine
         for element in self.driver.find_element(By.ID, "quadrillage").find_elements(By.CSS_SELECTOR, f"[style^=top]"):
-            allElementsCanFind = self.driver.find_elements(By.CLASS_NAME,"ligne.petit") + self.driver.find_elements(By.CLASS_NAME,"lignegrey") + self.driver.find_elements(By.CLASS_NAME,"plage.petit")
-            # ((todayDate if todayDate not in [5,6] else 0)*20)+6.6667 => only use for B group
-            if element.get_attribute("style").count(f"margin-left: {((todayDate if todayDate not in [5,6] else 0)*20)+6.6667}%") >= 1 and len(element.text) > 0:
-                # Cherche a quel heure il correspond sur l'emploie du temps.
-                for elementHeure in allElementsCanFind:
-                    if abs(int(elementHeure.get_attribute("style").split(";")[0].replace("top: ","").replace("px","")) - int(element.get_attribute("style").split(';')[0].replace("top: ","").replace("px",""))) in [30, 10]:
-                        print(elementHeure.find_element(By.CLASS_NAME,"fright").text)
-                        self.writeCours(element, elementHeure)
-                        break
-                # TODO Enlever les prints une fois fini !
-                print(self.edt)
-                print(element.text + "\n")
-            # Quand c'est classe entiere.
-            elif element.get_attribute("style").count(f"margin-left: {todayDate if todayDate not in [5,6] else 0*20}%") >= 1 and len(element.text) > 0:
-                for elementHeure in allElementsCanFind:
-                    if element.text.split('\n')[2] not in ["Amphi ", "Amphi2 "]: break
-                    if abs(int(elementHeure.get_attribute("style").split(";")[0].replace("top: ", "").replace("px", ""))-int(element.get_attribute("style").split(';')[0].replace("top: ", "").replace("px", ""))) in [30, 10]:
-                        print(elementHeure.find_element(By.CLASS_NAME, "fright").text)
-                        self.writeCours(element, elementHeure)
-                        break
-                # TODO Enlever les prints une fois fini !
-                print(self.edt)
-                print(element.text + "\n")
+            if len(element.text) > 0:
+                allElementsCanFind = self.driver.find_elements(By.CLASS_NAME,"ligne.petit") + self.driver.find_elements(By.CLASS_NAME,"lignegrey") + self.driver.find_elements(By.CLASS_NAME,"plage.petit")
+                # ((todayDate if todayDate not in [5,6] else 0)*20)+6.6667 => only use for B group
+                if element.get_attribute("style").count(f"margin-left: {((todayDate if todayDate not in [5,6] else 0)*20)+6.6667}%") >= 1:
+                    # Cherche a quel heure il correspond sur l'emploie du temps.
+                    for elementHeure in allElementsCanFind:
+                        if abs(int(elementHeure.get_attribute("style").split(";")[0].replace("top: ","").replace("px","")) - int(element.get_attribute("style").split(';')[0].replace("top: ","").replace("px",""))) in [30, 10]:
+                            print(elementHeure.find_element(By.CLASS_NAME,"fright").text)
+                            self.writeCours(element, elementHeure)
+                            break
+                    # TODO Enlever les prints une fois fini !
+                    print(self.edt)
+                    print(element.text + "\n")
+                # Quand c'est classe entiere.
+                elif element.get_attribute("style").count(f"margin-left: {todayDate if todayDate not in [5,6] else 0*20}%") >= 1:
+                    for elementHeure in allElementsCanFind:
+                        if len(element.text) > 0:
+                            if element.text.split('\n')[2] not in ["Amphi ","Amphi2 "]: break
+                        if abs(int(elementHeure.get_attribute("style").split(";")[0].replace("top: ", "").replace("px", ""))-int(element.get_attribute("style").split(';')[0].replace("top: ", "").replace("px", ""))) in [30, 10]:
+                            print(elementHeure.find_element(By.CLASS_NAME, "fright").text)
+                            self.writeCours(element, elementHeure)
+                            break
+                    # TODO Enlever les prints une fois fini !
+                    print(self.edt)
+                    print(element.text + "\n")
