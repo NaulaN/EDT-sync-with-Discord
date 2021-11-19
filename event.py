@@ -1,6 +1,6 @@
 import datetime
 
-from discord import utils,Embed,File
+from discord import utils,Embed
 from discord.ext import commands
 from discord.ext.tasks import loop
 

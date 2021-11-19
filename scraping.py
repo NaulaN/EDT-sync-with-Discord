@@ -32,7 +32,6 @@ class Scraping(object):
 
     def getEDT(self, todayDate=int(datetime.today().weekday())):
         """ Update l'emploie du temps """
-        # TODO Corrigé les elements qui manque present sur l'emploie du temps (Nom de div bizarre)
         # Click sur l'emploie du temps qui correspond au jour de la semaine
         for element in self.driver.find_elements(By.CLASS_NAME, f"jours.jour{todayDate+1}.plageDIVn"):
             if len(element.text) > 0:
