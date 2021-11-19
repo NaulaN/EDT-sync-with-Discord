@@ -56,4 +56,4 @@ class Event(commands.Cog):
             for n, subtitle in enumerate(["👨‍🏫👩‍🏫 Prof: ", "📖 Cours: ", "🚪 Salle: "]):
                 embed.add_field(name=subtitle,
                                 value=self.scraping.edt[time][n], inline=False)
-            await channel.send(content="@everyone",embed=embed)
+            await channel.send(content="<@&905161307421044799>", embed=embed)
